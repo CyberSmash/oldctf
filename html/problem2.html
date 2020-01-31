@@ -1,0 +1,162 @@
+<html>
+<head>
+<title>ChrisNOPerColumbus' Problems - Problem #1</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/styles/dracula.css" />
+<script src="highlight.pack.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+<body>
+	<h1>Problem #2</h1>
+	<pre><code class="bash">netcat ctf.cybersmash.io 5554</code></pre>
+	<div>
+		<div>
+			<form>
+				<div class="form-group">
+					<label for="flag_box">Check Solution: </label>
+					<input type="text" class="form-control" id="test_flag" />
+					<button type="button" class="btn btn-primary" id="calc_button">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;thread&gt;
+#include &lt;cstdlib&gt;
+#include &lt;cstdint&gt;
+#include &lt;unistd.h&gt;
+#include &lt;assert.h&gt;
+using std::cout;
+using std::cin;
+using std::endl;
+using std::string;
+#define SLEEP_TIME 200
+#define FLAG_FILE "./flag2"
+
+/**
+ * Load up our flag.
+ *
+ * @return - The flag from our flag file.
+ */
+string read_flag()
+{
+	std::ifstream file(FLAG_FILE);
+	assert(file.is_open());
+	string flag;
+	std::getline(file, flag);
+	return flag;
+}
+
+/**
+ * Randomly generate a password.
+ *
+ * Print a user-friendly message as well.
+ *
+ */
+uint64_t generate_password(int length, int random_seed)
+{
+	srand(random_seed);
+	int val = 0;
+	uint64_t password = 1;
+
+	for (int i = 0; i < length; i++)
+	{
+		char val = (rand() % 26) + 'a';
+		password *= val;
+	}
+	
+	return password;
+}
+
+uint64_t calc_password(string password)
+{
+	uint64_t val = 1;
+	for (int i = 0; i < password.length(); i++)
+	{
+		val *= password[i];
+	}
+	return val;
+
+}
+
+/**
+ * Just main.
+ */
+int main()
+{
+
+	alarm(30);
+	uint64_t password;
+	string user_guess;
+	string user_name;
+	int seed = time(NULL);
+	cout << seed << endl;
+	
+	printf("What is your name?\n> ");
+	std::getline(cin, user_name);
+
+	printf("OK %s Calculating a random password. Please be patient.\n", user_name.c_str());
+	password = generate_password(12, seed);
+	
+	printf("Encrypted Password: %llu password\n", password);
+	printf(user_name.c_str(), 12);
+	printf("Enter the password \n> ");
+	std::getline(cin, user_guess);
+
+	uint64_t guess = calc_password(user_guess);
+
+	if (guess == password)
+	{
+		string flag = read_flag();
+		printf("Success!\n");
+		printf("Flag: %s\n", flag.c_str());
+	}
+	else
+	{
+		printf("Failure!\n");
+	}
+
+	return 0;
+}
+
+		</code>
+	</pre>
+</body>
+
+<script>
+$("#calc_button").click(function() {
+	var solution_hash = "3cac1e125a743837c06ff9ed308983a30049812f6656a5989e55ef190d97c135";
+	var solution_hash2 = "8523b7e6030e5d5a50392eae70391eed135af54561914911c050300b46595551";
+	var attempted_flag = $('#test_flag').val();
+	var hash = CryptoJS.SHA256($('#test_flag').val());
+	var hex_hash = hash.toString(CryptoJS.enc.Hex);
+	if (solution_hash == hex_hash || hex_hash == solution_hash2)
+	{
+		alert("Correct!");
+	}
+	else
+	{
+		alert("Incorrect!");
+	}
+});
+
+</script>
+
+</html>
+
